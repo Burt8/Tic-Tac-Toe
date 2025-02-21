@@ -1,5 +1,6 @@
 require_relative "lib/game"
 
+# Working prototype (sufficient for Odin Project Assignment)
 # ruby tic_tac_toe.rb
 
 print "Ready to play? (Y/n)"
