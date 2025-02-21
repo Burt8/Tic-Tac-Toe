@@ -8,6 +8,7 @@ class Game
     @board = Board.new
     @turn = 9
     @winner = nil
+    @win = false
     @shape = nil
   end
 
@@ -20,20 +21,20 @@ class Game
     @turn -= 1
   end
 
-  def make_winner(array)
-    @winner = if array[0] == :o && @turn < 5
-                "Player 1"
-              else
-                "Player 2"
-              end
-  end
-
   def current_shape
     @shape = if @turn.even?
                :x
              else
                :o
              end
+  end
+
+  def current_winner
+    @winner = if @turn.even?
+                "Player 2"
+              else
+                "Player 1"
+              end
   end
 
   # these methods collect the current items on the board
@@ -70,51 +71,47 @@ class Game
     collection
   end
 
-  # these methods check for wins by seeing if the items collected are all identical
+  # this methods checks if the items collected are all identical
 
   def all_the_same?(array)
-    return false unless array[0] == array[1] && array[1] == array[2]
+    return false unless array.uniq.length < 2 && array.include?(nil) == false
 
     true
   end
 
-  # From here the methods need to be rewritten so that they are more individualized and don't call make_winner each time
-  # what should these values *return*
-  def check_row_win
-    3.times do |n|
-      collection = collect_row(n)
-      all_the_same?(collection) == true
+  # these methods check for wins!
+
+  def check_for_column_win
+    3.times do |column|
+      @win = true if all_the_same?(collect_column(column)) == true
     end
   end
 
-  def check_cross_win
-    collection_left = collect_cross_left
-    collection_right = collect_cross_right
+  def check_for_row_win
+    3.times do |row|
+      @win = true if all_the_same?(collect_row(row)) == true
+    end
   end
 
-  def check_column_win
-    3.times do |n|
-      collection = collect_column(n)
-      all_the_same?(collection)
-    end
+  def check_for_cross_win
+    @win = true if all_the_same?(collect_cross_left) == true || all_the_same?(collect_cross_right) == true
   end
 
   def check_for_win
-    check_row_win
-    check_cross_win
-    check_column_win
-  end
-
-  # basically. the process behind make_winner needs to be more complex
-
-  def finish
-    return if @winner.nil? == false
-
-    @turn = 0
-    puts "#{@winner} has won the game!"
+    check_for_column_win
+    check_for_row_win
+    check_for_cross_win
   end
 
   # these methods set up the gameplay loop
+
+  def finish
+    return unless @win == true
+
+    current_winner
+    puts "#{@winner} has won the game!"
+    @turn = 0
+  end
 
   def prepare
     board.place_move(current_shape, gets.to_i, gets.to_i)
